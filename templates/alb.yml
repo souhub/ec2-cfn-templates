@@ -1,0 +1,96 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  Prefix:
+    Type: String
+  Environment:
+    Type: String
+    Default: staging
+    AllowedValues:
+      - staging
+      - production
+  VPCStackName:
+    Type: String
+  SGStackName:
+    Type: String
+  ACMStackName:
+    Type: String
+  EC2StackName:
+    Type: String
+
+Resources:
+  TargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      VpcId:
+        Fn::ImportValue:
+          Fn::Join: ["-", [Ref: VPCStackName, "VPC"]]
+      Name:
+        Fn::Join: ["-", [Ref: Prefix, Ref: Environment]]
+      Protocol: HTTP
+      Port: 80
+      TargetType: instance
+      Targets:
+        - Id:
+            Fn::ImportValue:
+              Fn::Join: ["-", [Ref: EC2StackName, "EC2InstanceA"]]
+          Port: 80
+        - Id:
+            Fn::ImportValue:
+              Fn::Join: ["-", [Ref: EC2StackName, "EC2InstanceC"]]
+          Port: 80
+      HealthCheckPath: "/"
+
+  ALB:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Name:
+        Fn::Join: ["-", [Ref: Prefix, Ref: Environment, "alb"]]
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join: ["-", [Ref: Prefix, Ref: Environment, "alb"]]
+      Scheme: "internet-facing"
+      SecurityGroups:
+        - Fn::ImportValue:
+            Fn::Join: ["-", [Ref: SGStackName, "ALBSecurityGroup"]]
+      Subnets:
+        - Fn::ImportValue:
+            Fn::Join: ["-", [Ref: VPCStackName, "PublicSubnetA"]]
+        - Fn::ImportValue:
+            Fn::Join: ["-", [Ref: VPCStackName, "PublicSubnetC"]]
+
+  # HTTPS Lisner
+  ALBListenerHTTPS:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - TargetGroupArn:
+            Ref: TargetGroup
+          Type: forward
+      LoadBalancerArn:
+        Ref: ALB
+      Port: 443
+      Protocol: HTTPS
+      Certificates:
+        - CertificateArn:
+            Fn::ImportValue:
+              Fn::Join: ["-", [Ref: ACMStackName, "Certificate"]]
+
+  # HTTP Lisner
+  ALBListenerHTTP:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Properties:
+      DefaultActions:
+        - Type: redirect
+          RedirectConfig:
+            Host: "#{host}"
+            Path: "/#{path}"
+            Port: 443
+            Protocol: HTTPS
+            Query: "#{query}"
+            StatusCode: HTTP_301
+      LoadBalancerArn:
+        Ref: ALB
+      Port: 80
+      Protocol: HTTP

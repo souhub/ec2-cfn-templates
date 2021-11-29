@@ -1,0 +1,24 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  Domain:
+    Type: String
+
+Resources:
+  Certificate:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName:
+        Ref: Domain
+      SubjectAlternativeNames:
+        - Ref: Domain
+        - Fn::Join: [".", ["*", Ref: Domain]]
+      ValidationMethod: DNS
+
+Outputs:
+  Certificate:
+    Value:
+      Ref: Certificate
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-Certificate"
