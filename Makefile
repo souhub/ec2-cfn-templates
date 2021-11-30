@@ -20,12 +20,12 @@ acm:
 		--stack-name $(PREFIX)-acm \
 		--region $(REGION) \
 		--parameter-overrides \
-		Domain=$(DOMAIN); \
+		Domain=$(DOMAIN) && \
 	$(AWS_COMMAND_PREFIX) cloudformation deploy \
 		--profile ${PROFILE} \
 		--template-file ./templates/acm.yml \
 		--stack-name $(PREFIX)-acm \
-		--region ${REGION} \
+		--region us-east-1 \
 		--parameter-overrides \
 		Domain=$(DOMAIN)
 
