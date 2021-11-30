@@ -6,10 +6,10 @@ Parameters:
   Environment:
     Type: String
     AllowedValues:
+      - staging
       - production
   Region:
     Type: String
-    Default: ap-northeast-1
   SGStackName:
     Type: String
   VPCStackName:

@@ -6,19 +6,21 @@ Parameters:
   Environment:
     Type: String
     AllowedValues:
+      - staging
       - production
   Region:
     Type: String
-    Default: ap-northeast-1
 
 Mappings:
   EnvironmentMap:
+    staging:
+      VpcCidrBlock: 171.0.0.0/16
+      PublicSubnetACidrBlock: 171.0.1.0/24
+      PublicSubnetCCidrBlock: 171.0.2.0/24
     production:
       VpcCidrBlock: 170.0.0.0/16
       PublicSubnetACidrBlock: 170.0.1.0/24
       PublicSubnetCCidrBlock: 170.0.2.0/24
-      DBPrivateSubnetACidrBlock: 170.0.11.0/24
-      DBPrivateSubnetCCidrBlock: 170.0.12.0/24
 
 Resources:
   VPC:
