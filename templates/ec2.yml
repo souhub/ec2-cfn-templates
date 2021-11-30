@@ -41,6 +41,7 @@ Resources:
           yum install -y httpd
           systemctl start httpd.service
           systemctl enable httpd.service
+          echo "Hello world from Apache" > /var/www/html/index.html
       Tags:
         - Key: Name
           Value:
