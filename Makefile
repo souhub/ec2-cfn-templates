@@ -1,10 +1,11 @@
+# Change the values depends on situation
 PREFIX:=souhub
+DOMAIN := souhub-example.com
+
 PROFILE:=default
 REGION:=ap-northeast-1
 ENV:=production
 AWS_COMMAND_PREFIX := docker compose run --rm api
-
-DOMAIN := souhub-example.com
 
 # Amazon Linux2 AMI
 AMI_IMAGE_ID := ami-0404778e217f54308
@@ -89,3 +90,8 @@ alb:
 		ACMStackName=$(PREFIX)-acm \
 		EC2StackName=${PREFIX}-${ENV}-ec2
 
+delete:
+	@read -p "Enter stack name to delete [alb, ec2, sg, vpc]:" ans; \
+	$(AWS_COMMAND_PREFIX) cloudformation delete-stack \
+		--profile ${PROFILE} \
+		--stack-name ${PREFIX}-${ENV}-$$ans
