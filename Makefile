@@ -1,4 +1,4 @@
-PREFIX:=iori
+PREFIX:=souhub
 PROFILE:=default
 REGION:=ap-northeast-1
 ENV:=production
@@ -88,3 +88,4 @@ alb:
 		SGStackName=$(PREFIX)-$(ENV)-sg \
 		ACMStackName=$(PREFIX)-acm \
 		EC2StackName=${PREFIX}-${ENV}-ec2
+
