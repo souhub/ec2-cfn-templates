@@ -25,7 +25,6 @@ Resources:
           FromPort: 443
           ToPort: 443
           CidrIp: 0.0.0.0/0
-        # 証明書のデプロイ成功したらこのHTTPアクセス削除
         - IpProtocol: tcp
           FromPort: 80
           ToPort: 80
@@ -49,22 +48,15 @@ Resources:
           ToPort: 80
           SourceSecurityGroupId:
             Ref: ALBSecurityGroup
+        # SSH接続を許可（ec2.ymlでKeyNameの設定の必要あり）
+        # - IpProtocol: tcp
+        #   FromPort: 22
+        #   ToPort: 22
+        #   CidrIp: 0.0.0.0/0
       Tags:
         - Key: Name
           Value:
             Fn::Join: ["-", [Ref: Prefix, Ref: Environment, "application"]]
-
-  CodeBuildSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupDescription: "CodeBuild Security Group"
-      VpcId:
-        Fn::ImportValue:
-          Fn::Join: ["-", [Ref: VPCStackName, "VPC"]]
-      Tags:
-        - Key: Name
-          Value:
-            Fn::Join: ["-", [Ref: Prefix, Ref: Environment, "codebuild"]]
 
 Outputs:
   ALBSecurityGroup:
@@ -80,10 +72,3 @@ Outputs:
     Export:
       Name:
         Fn::Sub: "${AWS::StackName}-ApplicationSecurityGroup"
-
-  CodeBuildSecurityGroup:
-    Value:
-      Ref: CodeBuildSecurityGroup
-    Export:
-      Name:
-        Fn::Sub: "${AWS::StackName}-CodeBuildSecurityGroup"
