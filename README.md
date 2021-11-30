@@ -1,10 +1,17 @@
-# EC2-HTTPS Templates
+# EC2-CFn Templates
 
 図のような構成の HTTPS 化した EC2 の Coudformation テンプレート
+![overview](./public/overview.jpg)
 
-## Setup
+## Getting started
 
 Route53 でドメイン（このチュートリアルでは souhub-example.com）を取得し、NameSpace を作成。
+ACM で証明書発行
+以下のコマンド実行後、Route53 に CNAME レコードを作成（ACM のページから手動で）
+
+```
+$ make acm
+```
 
 VPC、Subnet 作成
 
@@ -16,13 +23,6 @@ SecurityGroup 作成
 
 ```
 $ make sg
-```
-
-ACM で証明書発行
-以下のコマンド実行後、Route53 に CNAME レコードを作成（ACM のページから手動で）
-
-```
-$ make acm
 ```
 
 EC2 インスタンス作成
@@ -37,6 +37,4 @@ ALB、TargetGroup、Lisner 作成
 $ make alb
 ```
 
-Route53 で Alias に ALB の DNS を選択し、（手動）www.souhub-example.comと紐づける
-
-[www.souhub-example.com](https://www.souhub.example.com)にアクセス
+手動で Route53 で Alias に ALB の DNS を選択し、[www.souhub-example.com](https://www.souhub.example.com)と紐づける
