@@ -23,6 +23,7 @@ Resources:
     Properties:
       ImageId:
         Ref: AMIImageId
+      # KeyName: YOU_HAVE_TO_SET_A_KEY_TO_USE_SSH_CONNECTION
       InstanceType: t2.micro
       NetworkInterfaces:
         - AssociatePublicIpAddress: "true"
@@ -36,11 +37,10 @@ Resources:
       UserData:
         Fn::Base64: |
           #!/bin/bash
-          sudo yum update -y
-          sudo yum install -y httpd
-          sudo systemctl start httpd.service
-          sudo systemctl enable httpd.service
-          echo "Hello world! from EC2 instance A" > /var/www/html/index.html
+          yum update -y
+          yum install -y httpd
+          systemctl start httpd.service
+          systemctl enable httpd.service
       Tags:
         - Key: Name
           Value:
@@ -51,6 +51,7 @@ Resources:
     Properties:
       ImageId:
         Ref: AMIImageId
+      # KeyName: YOU_HAVE_TO_SET_A_KEY_TO_USE_SSH_CONNECTION
       InstanceType: t2.micro
       NetworkInterfaces:
         - AssociatePublicIpAddress: "true"
@@ -64,11 +65,10 @@ Resources:
       UserData:
         Fn::Base64: |
           #!/bin/bash
-          sudo yum update -y
-          sudo yum install -y httpd
-          sudo systemctl start httpd.service
-          sudo systemctl enable httpd.service
-          echo "Hello world! from EC2 instance C" > /var/www/html/index.html
+          yum update -y
+          amazon-linux-extras install nginx1
+          systemctl start nginx.service
+          systemctl enable nginx.service
       Tags:
         - Key: Name
           Value:
