@@ -39,7 +39,8 @@ vpc:
 		--region $(REGION) \
 		--parameter-overrides \
 		Prefix=$(PREFIX) \
-		Environment=$(ENV)
+		Environment=$(ENV) \
+		Region=${REGION}
 
 sg:
 	$(AWS_COMMAND_PREFIX) cloudformation validate-template \
