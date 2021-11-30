@@ -1,13 +1,13 @@
 # EC2-CFn Templates
 
-図のような構成の HTTPS 化した EC2 の Coudformation テンプレート
+図のような構成の HTTPS 化した EC2 の Coudformation テンプレート<be/>
 ![overview](./public/overview.jpg)
 
 ## Getting started
 
-Route53 でドメイン（このチュートリアルでは souhub-example.com）を取得し、NameSpace を作成。
-ACM で証明書発行。
-以下のコマンド実行後、Route53 に CNAME レコードを作成（ACM のページから手動で）。
+Route53 でドメイン（このチュートリアルでは souhub-example.com）を取得し、NameSpace を作成。<br/>
+ACM で証明書発行。<br/>
+以下のコマンド実行後、Route53 に CNAME レコードを作成（ACM のページから手動で）。<be/>
 
 ```
 $ make acm
