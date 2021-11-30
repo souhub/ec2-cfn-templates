@@ -16,8 +16,6 @@ Parameters:
     Type: String
   AMIImageId:
     Type: String
-  KeyName:
-    Type: String
 
 Resources:
   EC2InstanceA:
@@ -25,8 +23,6 @@ Resources:
     Properties:
       ImageId:
         Ref: AMIImageId
-      KeyName:
-        Ref: KeyName
       InstanceType: t2.micro
       NetworkInterfaces:
         - AssociatePublicIpAddress: "true"
@@ -55,8 +51,6 @@ Resources:
     Properties:
       ImageId:
         Ref: AMIImageId
-      KeyName:
-        Ref: KeyName
       InstanceType: t2.micro
       NetworkInterfaces:
         - AssociatePublicIpAddress: "true"

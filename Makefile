@@ -71,8 +71,7 @@ ec2:
 		VPCStackName=$(PREFIX)-$(ENV)-vpc \
 		SGStackName=${PREFIX}-${ENV}-sg \
 		AMIImageId=${AMI_IMAGE_ID} \
-		KeyName=${PREFIX}-key
-
+		Region=${REGION}
 alb:
 	$(AWS_COMMAND_PREFIX) cloudformation validate-template \
 		--profile ${PROFILE} \
