@@ -7,9 +7,8 @@
 
 ## Getting started
 
-Route53 でドメイン（このチュートリアルでは souhub-example.com）を取得し、NameSpace を作成。<br/>
-ACM で証明書発行。<br/>
-以下のコマンド実行後、Route53 に CNAME レコードを作成（ACM のページから手動で）。<be/>
+Route53 でドメイン（このチュートリアルでは souhub-example.com）を取得し、NameSpace を作成する。<br/>
+その後、以下のコマンド実行し、Route53 に CNAME レコードを作成（ACM のページから手動で）。<be/>
 
 ```
 $ make acm
