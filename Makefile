@@ -106,7 +106,7 @@ rds:
 		SGStackName=$(PREFIX)-$(ENV)-sg
 
 delete:
-	@read -p "Enter stack name to delete [alb, ec2,rds, sg, vpc]:" ans; \
+	@read -p "Enter stack name to delete [alb, ec2, rds, sg, vpc]:" ans; \
 	$(AWS_COMMAND_PREFIX) cloudformation delete-stack \
 		--profile ${PROFILE} \
 		--stack-name ${PREFIX}-${ENV}-$$ans
