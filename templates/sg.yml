@@ -58,6 +58,25 @@ Resources:
           Value:
             Fn::Join: ["-", [Ref: Prefix, Ref: Environment, "application"]]
 
+  DatabaseSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Database Security Group"
+      VpcId:
+        Fn::ImportValue:
+          Fn::Join: ["-", [Ref: VPCStackName, "VPC"]]
+      # MySQL/Aurora (3306) のインバウンドを許可
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          SourceSecurityGroupId:
+            Ref: ApplicationSecurityGroup
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join: ["-", [Ref: Prefix, Ref: Environment, "database"]]
+
 Outputs:
   ALBSecurityGroup:
     Value:
@@ -72,3 +91,10 @@ Outputs:
     Export:
       Name:
         Fn::Sub: "${AWS::StackName}-ApplicationSecurityGroup"
+
+  DatabaseSecurityGroup:
+    Value:
+      Ref: DatabaseSecurityGroup
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-DatabaseSecurityGroup"
