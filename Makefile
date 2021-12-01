@@ -90,8 +90,23 @@ alb:
 		ACMStackName=$(PREFIX)-acm \
 		EC2StackName=${PREFIX}-${ENV}-ec2
 
+rds:
+	$(AWS_COMMAND_PREFIX) cloudformation validate-template \
+		--profile ${PROFILE} \
+		--template-body file://templates/rds.yml && \
+	$(AWS_COMMAND_PREFIX) cloudformation deploy \
+		--profile ${PROFILE} \
+		--template-file ./templates/rds.yml \
+		--stack-name $(PREFIX)-$(ENV)-rds \
+		--region $(REGION) \
+		--parameter-overrides \
+		Prefix=$(PREFIX) \
+		Environment=$(ENV) \
+		VPCStackName=$(PREFIX)-$(ENV)-vpc \
+		SGStackName=$(PREFIX)-$(ENV)-sg
+
 delete:
-	@read -p "Enter stack name to delete [alb, ec2, sg, vpc]:" ans; \
+	@read -p "Enter stack name to delete [alb, ec2,rds, sg, vpc]:" ans; \
 	$(AWS_COMMAND_PREFIX) cloudformation delete-stack \
 		--profile ${PROFILE} \
 		--stack-name ${PREFIX}-${ENV}-$$ans

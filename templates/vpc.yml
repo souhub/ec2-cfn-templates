@@ -17,10 +17,14 @@ Mappings:
       VpcCidrBlock: 171.0.0.0/16
       PublicSubnetACidrBlock: 171.0.1.0/24
       PublicSubnetCCidrBlock: 171.0.2.0/24
+      DBPrivateSubnetACidrBlock: 171.0.11.0/24
+      DBPrivateSubnetCCidrBlock: 171.0.12.0/24
     production:
       VpcCidrBlock: 170.0.0.0/16
       PublicSubnetACidrBlock: 170.0.1.0/24
       PublicSubnetCCidrBlock: 170.0.2.0/24
+      DBPrivateSubnetACidrBlock: 170.0.11.0/24
+      DBPrivateSubnetCCidrBlock: 170.0.12.0/24
 
 Resources:
   VPC:
@@ -64,6 +68,36 @@ Resources:
         - Key: Name
           Value:
             Fn::Join: ["-", [Ref: Prefix, Ref: Environment, "PublicSubnetC"]]
+
+  DBPrivateSubnetA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Join: ["", [Ref: Region, "a"]]
+      VpcId:
+        Ref: VPC
+      CidrBlock:
+        Fn::FindInMap:
+          [EnvironmentMap, Ref: Environment, DBPrivateSubnetACidrBlock]
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join: ["-", [Ref: Prefix, Ref: Environment, "DBPrivateSubnetA"]]
+
+  DBPrivateSubnetC:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone:
+        Fn::Join: ["", [Ref: Region, "c"]]
+      VpcId:
+        Ref: VPC
+      CidrBlock:
+        Fn::FindInMap:
+          [EnvironmentMap, Ref: Environment, DBPrivateSubnetCCidrBlock]
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join: ["-", [Ref: Prefix, Ref: Environment, "DBPrivateSubnetC"]]
 
   # インターネットゲートウェイ
   InternetGateway:
@@ -146,3 +180,17 @@ Outputs:
     Export:
       Name:
         Fn::Sub: "${AWS::StackName}-PublicSubnetC"
+
+  DBPrivateSubnetA:
+    Value:
+      Ref: DBPrivateSubnetA
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-DBPrivateSubnetA"
+
+  DBPrivateSubnetC:
+    Value:
+      Ref: DBPrivateSubnetC
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-DBPrivateSubnetC"

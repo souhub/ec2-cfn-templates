@@ -1,0 +1,200 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  Prefix:
+    Type: String
+  Environment:
+    Type: String
+    AllowedValues:
+      - staging
+      - production
+  VPCStackName:
+    Type: String
+  SGStackName:
+    Type: String
+Conditions:
+  IsProduction:
+    Fn::Equals: [Ref: Environment, production]
+
+Resources:
+  RDSDBParameterGroup:
+    Type: AWS::RDS::DBParameterGroup
+    Properties:
+      Description:
+        Fn::Join:
+          [
+            " ",
+            [
+              Fn::Join: ["-", [Ref: Prefix, Ref: Environment, aurora]],
+              Parameter Group,
+            ],
+          ]
+      Family: "aurora-mysql5.7"
+      Parameters:
+        innodb_file_format: Barracuda
+        innodb_large_prefix: 1
+        log_output: FILE
+        long_query_time: 1
+        slow_query_log: 1
+        # NOTE: both `wait_timeout` & `interactive_timeout` must be set at the same time
+        wait_timeout: 2419200 # 28 days
+        interactive_timeout: 2419200 # 28 days
+        max_allowed_packet: 134217728 # 128MB
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join: ["-", [Ref: Prefix, "parameters"]]
+
+  RDSDBClusterParameterGroup:
+    Type: AWS::RDS::DBClusterParameterGroup
+    Properties:
+      Description:
+        Fn::Join:
+          [
+            " ",
+            [
+              Fn::Join: ["-", [Ref: Prefix, Ref: Environment, aurora-cluster]],
+              Parameter Group,
+            ],
+          ]
+      Family: "aurora-mysql5.7"
+      Parameters:
+        character_set_client: utf8mb4
+        character_set_connection: utf8mb4
+        character_set_database: utf8mb4
+        character_set_filesystem: binary
+        character_set_results: utf8mb4
+        character_set_server: utf8mb4
+        collation_connection: utf8mb4_bin
+        collation_server: utf8mb4_bin
+        innodb_file_per_table: 1
+        max_connections: 200
+      Tags:
+        - Key: Name
+          Value:
+            Fn::Join: ["-", [Ref: Prefix, Ref: Environment, aurora-cluster]]
+
+  RDSDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription:
+        Fn::Join:
+          [
+            " ",
+            [
+              Fn::Join: ["-", [Ref: Prefix, Ref: Environment, aurora]],
+              Subnet Group,
+            ],
+          ]
+      SubnetIds:
+        - Fn::ImportValue:
+            Fn::Join: ["-", [Ref: VPCStackName, "DBPrivateSubnetA"]]
+        - Fn::ImportValue:
+            Fn::Join: ["-", [Ref: VPCStackName, "DBPrivateSubnetC"]]
+
+  RDSClusterSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name:
+        Fn::Join:
+          [
+            "/",
+            [Ref: Prefix, Ref: Environment, "aurora", Ref: "AWS::StackName"],
+          ]
+      GenerateSecretString:
+        SecretStringTemplate:
+          Fn::Join: ["", ['{"username": "', Ref: Prefix, '"}']]
+        GenerateStringKey: "password"
+        PasswordLength: 16
+        ExcludeCharacters: '"@/\'
+      Tags:
+        - Key: AppName
+          Value:
+            Fn::Join: ["-", [Ref: Prefix, Ref: Environment]]
+
+  RDSClusterSecretTargetAttachment:
+    Type: AWS::SecretsManager::SecretTargetAttachment
+    Properties:
+      SecretId:
+        Ref: RDSClusterSecret
+      TargetId:
+        Ref: RDSCluster
+      TargetType: AWS::RDS::DBCluster
+
+  RDSCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      DatabaseName: avzeus_db
+      DBClusterParameterGroupName:
+        Ref: RDSDBClusterParameterGroup
+      DBSubnetGroupName:
+        Ref: RDSDBSubnetGroup
+      Engine: aurora-mysql
+      MasterUsername:
+        Fn::Join:
+          [
+            "",
+            [
+              "{{resolve:secretsmanager:",
+              Ref: RDSClusterSecret,
+              ":SecretString:username}}",
+            ],
+          ]
+      MasterUserPassword:
+        Fn::Join:
+          [
+            "",
+            [
+              "{{resolve:secretsmanager:",
+              Ref: RDSClusterSecret,
+              ":SecretString:password}}",
+            ],
+          ]
+      StorageEncrypted: true
+      VpcSecurityGroupIds:
+        - Fn::ImportValue:
+            Fn::Join: ["-", [Ref: SGStackName, "DatabaseSecurityGroup"]]
+
+  RDSDBInstance01:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: db.t3.small
+      DBParameterGroupName:
+        Ref: RDSDBParameterGroup
+      DBClusterIdentifier:
+        Ref: RDSCluster
+      Engine: aurora-mysql
+
+  # enable multiAZ when env is production
+  RDSDBInstance02:
+    Type: AWS::RDS::DBInstance
+    Condition: IsProduction
+    Properties:
+      DBInstanceClass: db.t3.small
+      DBParameterGroupName:
+        Ref: RDSDBParameterGroup
+      DBClusterIdentifier:
+        Ref: RDSCluster
+      Engine: aurora-mysql
+
+Outputs:
+  RDSCluster:
+    Value:
+      Ref: RDSCluster
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-RDSCluster"
+
+  RDSClusterSecret:
+    Value:
+      Ref: RDSClusterSecret
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-RDSClusterSecret"
+
+  RDSClusterSecretTargetAttachment:
+    Value:
+      Ref: RDSClusterSecretTargetAttachment
+    Export:
+      Name:
+        Fn::Sub: "${AWS::StackName}-RDSClusterSecretTargetAttachment"
