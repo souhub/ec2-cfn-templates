@@ -53,5 +53,3 @@ $ make alb
 
 <br/>
 手動で Route53 で Alias に ALB の DNS を選択し、レコード名をwww.souhub-example.comにして紐づける。
-<br/>
-<https://souhub-example.com>にアクセス
