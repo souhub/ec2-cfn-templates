@@ -31,6 +31,13 @@ $ make sg
 ```
 
 <br/>
+Aurora for MySQLを作成。パスワードやエンドポイントはSecret Managerに保存される。
+
+```
+$ make rds
+```
+
+<br/>
 EC2 インスタンス作成
 
 ```
@@ -45,4 +52,6 @@ $ make alb
 ```
 
 <br/>
-手動で Route53 で Alias に ALB の DNS を選択し、[www.souhub-example.com](https://www.souhub.example.com)と紐づける
+手動で Route53 で Alias に ALB の DNS を選択し、レコード名をwww.souhub-example.comにして紐づける。
+<br/>
+<https://souhub-example.com>にアクセス
