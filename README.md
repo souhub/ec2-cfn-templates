@@ -1,6 +1,6 @@
 # EC2-CFn Templates
 
-図のような構成の HTTPS 化した EC2 の Coudformation テンプレート<be/><br/>
+図のような構成の HTTPS 化した EC2 と RDS(Amazon Aurora for MySQL) の Coudformation テンプレート<be/><br/>
 
 ![overview](./public/overview.jpg)
 <br/>
